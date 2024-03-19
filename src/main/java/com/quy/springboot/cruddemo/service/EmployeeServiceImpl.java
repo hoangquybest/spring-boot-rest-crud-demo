@@ -1,39 +1,50 @@
 package com.quy.springboot.cruddemo.service;
 
-import com.quy.springboot.cruddemo.dao.EmployeeDAO;
+import com.quy.springboot.cruddemo.dao.EmployeeRepository;
 import com.quy.springboot.cruddemo.entity.Employee;
-import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class EmployeeServiceImpl implements EmployeeService{
 
-    private EmployeeDAO employeeDAO;
+    private EmployeeRepository employeeRepository;
 
-    public EmployeeServiceImpl(EmployeeDAO theEmployeeDAO) {
-        employeeDAO = theEmployeeDAO;
+    public EmployeeServiceImpl(EmployeeRepository theEmployeeRepository) {
+        employeeRepository = theEmployeeRepository;
     }
     @Override
     public List<Employee> findAll() {
-        return employeeDAO.findAll();
+        return employeeRepository.findAll();
     }
 
     @Override
     public Employee findById(int theId) {
-        return employeeDAO.findById(theId);
+        Optional<Employee> result = employeeRepository.findById(theId);
+
+        Employee theEmployee = null;
+
+        if (result.isPresent()) {
+            theEmployee = result.get();
+        }
+        else {
+            // we didn't find the employee
+            throw new RuntimeException("Did not find employee id - " + theId);
+        }
+        return theEmployee;
     }
 
-    @Transactional
+    // Remove @Transactional since JpaRepository provides this functionality
     @Override
     public Employee save(Employee employee) {
-        return employeeDAO.save(employee);
+        return employeeRepository.save(employee);
     }
 
-    @Transactional
+    // Remove @Transactional since JpaRepository provides this functionality
     @Override
     public void deleteById(int theId) {
-        employeeDAO.deleteById(theId);
+        employeeRepository.deleteById(theId);
     }
 }
